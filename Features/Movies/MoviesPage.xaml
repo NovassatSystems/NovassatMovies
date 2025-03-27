@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--  xmlns:Acrylic="clr-namespace:Xe.AcrylicView;assembly=Xe.AcrylicView"  -->
+<base:BasePage
+    x:Class="NovassatMovies.MoviesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:FF="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
+    xmlns:Movie="clr-namespace:NovassatMovies.Features.Movies"
+    xmlns:This="clr-namespace:NovassatMovies"
+    xmlns:base="clr-namespace:NovassatMovies.Features.Base"
+    xmlns:cards="clr-namespace:PanCardView;assembly=PanCardView"
+    xmlns:controls="clr-namespace:NovassatMovies.Extenders.Controls"
+    xmlns:proc="clr-namespace:PanCardView.Processors;assembly=PanCardView"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Name="Movies"
+    Shell.NavBarIsVisible="False">
+    <Grid>
+        <ScrollView VerticalOptions="Fill">
+            <VerticalStackLayout Padding="16" Spacing="25">
+                <Grid
+                    ColumnDefinitions="*,Auto,Auto"
+                    HorizontalOptions="Fill"
+                    RowDefinitions="Auto">
+                    <Label
+                        FontSize="Large"
+                        Text="{Binding AccountDetails.Username, StringFormat='Olá {0}, bem-vindo!'}"
+                        VerticalOptions="Center" />
+
+
+                    <Button
+                        Grid.Column="1"
+                        Margin="0,0,16,0"
+                        Padding="0"
+                        BackgroundColor="Transparent"
+                        Command="{Binding DownloadImagesCommand}"
+                        HeightRequest="24"
+                        HorizontalOptions="End"
+                        ImageSource="download"
+                        VerticalOptions="Center"
+                        WidthRequest="24" />
+
+                    <Border
+                        Grid.Row="1"
+                        BackgroundColor="Black"
+                        HeightRequest="16"
+                        HorizontalOptions="End"
+                        IsVisible="{Binding ShowProgress}"
+                        StrokeShape="{RoundRectangle CornerRadius=8,
+                                                     BackgroundColor=Black}"
+                        StrokeThickness="0"
+                        TranslationX="12"
+                        TranslationY="8"
+                        VerticalOptions="Center"
+                        WidthRequest="16">
+                        <Label
+                            FontSize="8"
+                            HorizontalOptions="Center"
+                            Text="{Binding ProgressCount}"
+                            TextColor="White"
+                            TranslationX="0.5"
+                            VerticalOptions="Center" />
+
+                    </Border>
+                    <Image
+                        Grid.Column="2"
+                        HeightRequest="24"
+                        HorizontalOptions="End"
+                        Source="{Binding IsConnected}"
+                        VerticalOptions="Center" />
+
+                </Grid>
+                <Border HeightRequest="240" StrokeThickness="0">
+                    <cards:CoverFlowView
+                        x:Name="carouselView"
+                        IsAutoInteractionRunning="True"
+                        IsAutoNavigatingAnimationEnabled="True"
+                        ItemsSource="{Binding TrendingMovies}"
+                        PositionShiftValue="32">
+                        <x:Arguments>
+                            <proc:CoverFlowProcessor OpacityFactor="1" ScaleFactor="0.75" />
+                        </x:Arguments>
+                        <cards:CoverFlowView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="20,8" StrokeThickness="0">
+                                    <Grid RowDefinitions="*,48">
+                                        <FF:CachedImage
+                                            Grid.RowSpan="2"
+                                            Aspect="AspectFill"
+                                            Source="{Binding FullBackdropPath}"
+                                            VerticalOptions="Fill">
+                                            <FF:CachedImage.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding IsConnected}"
+                                                    TargetType="FF:CachedImage"
+                                                    Value="False">
+                                                    <Setter Property="Source" Value="{Binding Poster}" />
+                                                </DataTrigger>
+                                            </FF:CachedImage.Triggers>
+                                        </FF:CachedImage>
+                                        <Grid
+                                            Grid.Row="1"
+                                            Padding="8"
+                                            BackgroundColor="BlanchedAlmond"
+                                            HeightRequest="48"
+                                            Opacity="0.2" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Margin="16,0,0,0"
+                                            FontSize="Default"
+                                            HorizontalOptions="Start"
+                                            Text="{Binding Title}"
+                                            TextColor="AntiqueWhite"
+                                            VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </cards:CoverFlowView.ItemTemplate>
+                    </cards:CoverFlowView>
+                </Border>
+                <Label
+                    FontSize="Large"
+                    Text="Populares"
+                    TextColor="White"
+                    VerticalOptions="End" />
+                <CollectionView
+                    FlowDirection="MatchParent"
+                    ItemsLayout="HorizontalList"
+                    ItemsSource="{Binding PopularMovies}"
+                    VerticalOptions="End">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="0,0,16,0"
+                                Padding="0"
+                                Stroke="Transparent"
+                                StrokeShape="{RoundRectangle CornerRadius=8}"
+                                StrokeThickness="0">
+                                <Grid ColumnDefinitions="124">
+                                    <FF:CachedImage
+                                        Grid.Row="0"
+                                        Aspect="AspectFit"
+                                        HeightRequest="180"
+                                        Source="{Binding FullPosterPath}"
+                                        VerticalOptions="Fill">
+                                        <FF:CachedImage.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsConnected}"
+                                                TargetType="FF:CachedImage"
+                                                Value="False">
+                                                <Setter Property="Source" Value="{Binding Poster}" />
+                                            </DataTrigger>
+                                        </FF:CachedImage.Triggers>
+                                    </FF:CachedImage>
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.GetMovieDetailCommand, Source={x:Reference Movies}}" CommandParameter="{Binding Id}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label
+                    FontSize="Large"
+                    Text="Melhores avaliados"
+                    TextColor="White"
+                    VerticalOptions="End" />
+                <CollectionView
+                    FlowDirection="MatchParent"
+                    ItemsLayout="HorizontalList"
+                    ItemsSource="{Binding TopRatedMovies}"
+                    VerticalOptions="End">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="0,0,16,0"
+                                Padding="0"
+                                Stroke="Transparent"
+                                StrokeShape="{RoundRectangle CornerRadius=8}"
+                                StrokeThickness="0">
+                                <Grid ColumnDefinitions="124">
+                                    <FF:CachedImage
+                                        Grid.Row="0"
+                                        Aspect="AspectFit"
+                                        HeightRequest="180"
+                                        Source="{Binding FullPosterPath}"
+                                        VerticalOptions="Fill">
+                                        <FF:CachedImage.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsConnected}"
+                                                TargetType="FF:CachedImage"
+                                                Value="False">
+                                                <Setter Property="Source" Value="{Binding Poster}" />
+                                            </DataTrigger>
+                                        </FF:CachedImage.Triggers>
+                                    </FF:CachedImage>
+                                    <Border
+                                        BackgroundColor="#CCFFFFFF"
+                                        HeightRequest="40"
+                                        HorizontalOptions="Start"
+                                        Stroke="Green"
+                                        StrokeShape="{RoundRectangle CornerRadius=20,
+                                                                     StrokeThickness=8}"
+                                        VerticalOptions="Start"
+                                        WidthRequest="40">
+                                        <Label
+                                            HorizontalOptions="Center"
+                                            Text="{Binding VoteAverage, StringFormat='{0:F2}'}"
+                                            TextColor="Black"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.GetMovieDetailCommand, Source={x:Reference Movies}}" CommandParameter="{Binding Id}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <controls:LoadingView />
+    </Grid>
+</base:BasePage>

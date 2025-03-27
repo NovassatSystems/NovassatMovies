@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="NovassatMovies.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Auth="clr-namespace:NovassatMovies.Features.Authentication"
+    xmlns:favorites="clr-namespace:NovassatMovies.Features.Favorite"
+    xmlns:local="clr-namespace:NovassatMovies"
+    xmlns:movies="clr-namespace:NovassatMovies.Features.Movies"
+    xmlns:search="clr-namespace:NovassatMovies.Features.Search"
+    xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
+    Title="NovassatMovies"
+    Shell.FlyoutBehavior="Disabled">
+    <ShellContent ContentTemplate="{DataTemplate Auth:AuthPage}" Route="AuthPage" />
+
+    <OnPlatform x:TypeArguments="ShellItem">
+        <On Platform="Android">
+            <TabBar
+                x:Name="MainTabBar"
+                IsVisible="False"
+                Route="MainTabBar">
+                <Tab Title="Home" Icon="home">
+                    <ShellContent ContentTemplate="{DataTemplate local:MoviesPage}" />
+                </Tab>
+                <Tab Title="Procurar" Icon="search">
+                    <ShellContent ContentTemplate="{DataTemplate search:SearchMoviePage}" />
+                </Tab>
+                <Tab Title="Favoritos" Icon="favorite">
+                    <ShellContent ContentTemplate="{DataTemplate favorites:MoviesFavoritePage}" />
+                </Tab>
+                <Tab Title="Minha Lista" Icon="watchlist">
+                    <ShellContent ContentTemplate="{DataTemplate favorites:MoviesFavoritePage}" />
+                </Tab>
+            </TabBar>
+        </On>
+        <On Platform="iOS">
+            <FlyoutItem
+                x:Name="MainFlyout"
+                Title="Menu"
+                IsVisible="False"
+                Route="MainFlyout">
+                <Tab Title="Home" Icon="home">
+                    <ShellContent ContentTemplate="{DataTemplate local:MoviesPage}" />
+                </Tab>
+                <Tab Title="Procurar" Icon="search">
+                    <ShellContent ContentTemplate="{DataTemplate search:SearchMoviePage}" />
+                </Tab>
+                <Tab Title="Favoritos" Icon="favorite">
+                    <ShellContent ContentTemplate="{DataTemplate favorites:MoviesFavoritePage}" />
+                </Tab>
+                <Tab Title="Minha Lista" Icon="watchlist">
+                    <ShellContent ContentTemplate="{DataTemplate favorites:MoviesFavoritePage}" />
+                </Tab>
+            </FlyoutItem>
+        </On>
+    </OnPlatform>
+</Shell>

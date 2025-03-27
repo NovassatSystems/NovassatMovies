@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<base:BasePage
+    x:Class="NovassatMovies.Features.Authentication.AuthPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:base="clr-namespace:NovassatMovies.Features.Base"
+    xmlns:controls="clr-namespace:NovassatMovies.Extenders.Controls"
+    xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
+    Title="AuthPage"
+    Shell.NavBarIsVisible="False">
+    <Grid ColumnDefinitions="*" RowDefinitions="*">
+
+        <Grid
+            HorizontalOptions="Fill"
+            RowDefinitions="*,Auto"
+            VerticalOptions="Fill">
+            <Image
+                HeightRequest="128"
+                Source="home"
+                VerticalOptions="Center" />
+
+            <Border
+                Grid.Row="1"
+                BackgroundColor="White"
+                Opacity="0.25" />
+            <Button
+                Grid.Row="1"
+                BackgroundColor="Transparent"
+                Command="{Binding AuthCommand}"
+                CornerRadius="0"
+                FontAttributes="Bold"
+                FontSize="Large"
+                HeightRequest="96"
+                HorizontalOptions="Fill"
+                Text="Logar via OAuth"
+                VerticalOptions="End" />
+        </Grid>
+        <controls:LoadingView />
+    </Grid>
+</base:BasePage>

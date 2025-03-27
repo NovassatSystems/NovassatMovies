@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<base:BasePage
+    x:Class="NovassatMovies.Features.Search.SearchMoviePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:FF="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
+    xmlns:base="clr-namespace:NovassatMovies.Features.Base"
+    x:Name="Search"
+    Title="Pesquisar"
+    Shell.NavBarIsVisible="False">
+    <ScrollView>
+
+        <Grid Padding="16" RowDefinitions="Auto,Auto,Auto">
+            <Label
+                Margin="0,0,0,24"
+                FontAttributes="Bold"
+                FontSize="Large"
+                Text="Pesquisar" />
+            <Entry
+                Grid.Row="1"
+                Placeholder="Pesquisar"
+                TextChanged="Entry_TextChanged" />
+            <CollectionView
+                Grid.Row="2"
+                FlowDirection="MatchParent"
+                ItemsSource="{Binding SearchResults}"
+                VerticalOptions="Fill">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout
+                        HorizontalItemSpacing="16"
+                        Orientation="Vertical"
+                        Span="2"
+                        VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Stroke="Transparent"
+                            StrokeShape="{RoundRectangle CornerRadius=8}"
+                            StrokeThickness="0">
+
+                            <FF:CachedImage
+                                Grid.Row="0"
+                                Aspect="AspectFill"
+                                Source="{Binding FullPosterPath}"
+                                VerticalOptions="Fill" />
+
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.GetMovieDetailCommand, Source={x:Reference Search}}" CommandParameter="{Binding Id}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+
+        </Grid>
+    </ScrollView>
+</base:BasePage>

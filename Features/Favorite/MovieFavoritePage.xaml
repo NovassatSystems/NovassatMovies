@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<base:BasePage
+    x:Class="NovassatMovies.Features.Favorite.MoviesFavoritePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:FF="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
+    xmlns:base="clr-namespace:NovassatMovies.Features.Base"
+    x:Name="Favorite"
+    Title="Favoritos"
+    Shell.NavBarIsVisible="False">
+    <ScrollView>
+        <Grid Padding="16" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+            <Label
+                Margin="0,0,0,24"
+                FontAttributes="Bold"
+                FontSize="Large"
+                Text="Favoritos" />
+            <CollectionView
+                Grid.Row="1"
+                FlowDirection="MatchParent"
+                ItemsSource="{Binding FavoriteMovies.Results}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout
+                        HorizontalItemSpacing="16"
+                        Orientation="Vertical"
+                        Span="2"
+                        VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Stroke="Transparent"
+                            StrokeShape="{RoundRectangle CornerRadius=8}"
+                            StrokeThickness="0">
+
+                            <FF:CachedImage
+                                Grid.Row="0"
+                                Aspect="AspectFill"
+                                Source="{Binding FullPosterPath}"
+                                VerticalOptions="Fill" />
+
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.GetMovieDetailCommand, Source={x:Reference Favorite}}" CommandParameter="{Binding Id}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Triggers>
+                    <DataTrigger
+                        Binding="{Binding FavoriteMovies.Results.Count}"
+                        TargetType="CollectionView"
+                        Value="0">
+                        <Setter Property="IsVisible" Value="False" />
+                    </DataTrigger>
+                </CollectionView.Triggers>
+            </CollectionView>
+            <Label IsVisible="False" Text="Não há favoritos registrados">
+                <Label.Triggers>
+                    <DataTrigger
+                        Binding="{Binding FavoriteMovies.Results.Count}"
+                        TargetType="Label"
+                        Value="0">
+                        <Setter Property="IsVisible" Value="True" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+        </Grid>
+    </ScrollView>
+</base:BasePage>

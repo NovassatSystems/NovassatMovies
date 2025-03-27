@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<base:BasePage
+    x:Class="NovassatMovies.Features.MovieDetail.MovieDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:NovassatMovies.Extenders.Controls"
+    xmlns:FF="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
+    xmlns:base="clr-namespace:NovassatMovies.Features.Base"
+    Title="{Binding Movie.Title}"
+    Shell.NavBarIsVisible="False">
+    <Grid RowDefinitions="*,Auto">
+
+
+        <FF:CachedImage
+            Grid.RowSpan="10"
+            Aspect="AspectFill"
+            IsVisible="True"
+            Source="{Binding Movie.FullPosterPath}"
+            VerticalOptions="Fill">
+            <FF:CachedImage.Triggers>
+                <DataTrigger
+                    Binding="{Binding IsOnline}"
+                    TargetType="FF:CachedImage"
+                    Value="False">
+                    <Setter Property="Source" Value="{Binding Movie.Poster}" />
+                </DataTrigger>
+            </FF:CachedImage.Triggers>
+        </FF:CachedImage>
+
+        <controls:BackView VerticalOptions="Start"
+                            HorizontalOptions="Start"/>
+
+        <Button
+            Margin="0,16,16,0"
+            Padding="4"
+            BackgroundColor="White"
+            Command="{Binding ShareMovieCommand}"
+            CommandParameter="1"
+            CornerRadius="16"
+            HeightRequest="32"
+            HorizontalOptions="End"
+            ImageSource="share"
+            VerticalOptions="Start"
+            WidthRequest="32" />
+
+
+        <Button
+            Margin="0,16,16,0"
+            Padding="4"
+            BackgroundColor="White"
+            Command="{Binding AddOrRemoveFavoriteMovieCommand}"
+            CommandParameter="1"
+            CornerRadius="16"
+            HeightRequest="32"
+            HorizontalOptions="End"
+            ImageSource="unfavorite"
+            TranslationY="40"
+            VerticalOptions="Start"
+            WidthRequest="32">
+            <Button.Triggers>
+                <DataTrigger
+                    Binding="{Binding Movie.IsFavorite}"
+                    TargetType="Button"
+                    Value="True">
+                    <Setter Property="ImageSource" Value="favorite" />
+                    <Setter Property="CommandParameter" Value="0" />
+                </DataTrigger>
+            </Button.Triggers>
+        </Button>
+        <Border
+            Grid.Row="1"
+            BackgroundColor="Black"
+            HorizontalOptions="Fill"
+            Opacity="0.45"
+            StrokeThickness="0"
+            VerticalOptions="Fill" />
+        <Grid
+            Grid.Row="1"
+            Padding="16,16,16,32"
+            ColumnDefinitions="*,Auto"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+            RowSpacing="8">
+
+            <Label
+                Grid.ColumnSpan="2"
+                FontAttributes="Bold"
+                FontSize="Large"
+                Text="{Binding Movie.Title}" />
+
+            <Label Grid.Row="1" Text="{Binding Movie.FormattedGenres}" />
+
+            <Label
+                Grid.Row="1"
+                Grid.Column="1"
+                HorizontalOptions="End"
+                Text="{Binding Movie.FormattedRuntime, StringFormat='Duração de {0}'}" />
+
+            <Label Grid.Row="3" Text="{Binding Movie.ReleaseDate, StringFormat='Data de lançamento: {0:dd/MM/yyyy}'}" />
+
+            <Label
+                Grid.Row="3"
+                Grid.Column="1"
+                HorizontalOptions="End"
+                Text="{Binding Movie.VoteAverage, StringFormat='{}{0:F1}/10'}" />
+
+            <Label
+                Grid.Row="5"
+                Grid.ColumnSpan="2"
+                Text="{Binding Movie.Overview}" />
+        </Grid>
+    </Grid>
+</base:BasePage>

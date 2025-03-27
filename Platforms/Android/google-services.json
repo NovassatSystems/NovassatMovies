@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "171258815236",
+    "project_id": "novassatmovies",
+    "storage_bucket": "novassatmovies.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:171258815236:android:c7838c5111dfd77194a651",
+        "android_client_info": {
+          "package_name": "com.novassatsystems.novassatmovies"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcZM0daZI4VefxEJdHN4RRjD1QD1FpZ1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
