@@ -15,8 +15,8 @@
             RowDefinitions="*,Auto"
             VerticalOptions="Fill">
             <Image
-                HeightRequest="128"
-                Source="home"
+                HeightRequest="240"
+                Source="auth"
                 VerticalOptions="Center" />
 
             <Border
