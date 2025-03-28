@@ -1,15 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using NovassatMovies.Extenders.Extensions;
-using NovassatMovies.Features.Base;
-using NovassatMovies.Infrastructure;
-using NovassatMovies.Infrastructure.Extensions;
-using NovassatMovies.Infrastructure.Messages;
-using NovassatMovies.Infrastructure.Services;
-using System.Collections.ObjectModel;
-using System.Text.Json;
-
-namespace NovassatMovies;
+﻿namespace NovassatMovies;
 
 public partial class MoviesViewModel : BaseViewModel
 {
@@ -94,38 +83,56 @@ public partial class MoviesViewModel : BaseViewModel
     #region Methods
     async Task VerifySyncAsync()
     {
-        var moviesToSync = await _syncService.FindToSyncFavAsync();
-        var addCount = moviesToSync.Item1.Count;
-        var removeCount = moviesToSync.Item2.Count;
-
-        if (addCount > 0 || removeCount > 0)
+        try
         {
-            string message = "Você";
 
-            if (addCount > 0)
-                message += $" favoritou {addCount} filme{(addCount > 1 ? "s" : "")}";
 
-            if (addCount > 0 && removeCount > 0)
-                message += " e";
+            var moviesToSync = await _syncService.FindToSyncFavAsync();
+            var addCount = moviesToSync.Item1.Count;
+            var removeCount = moviesToSync.Item2.Count;
 
-            if (removeCount > 0)
-                message += $" desfavoritou {removeCount} filme{(removeCount > 1 ? "s" : "")}";
+            if (addCount > 0 || removeCount > 0)
+            {
+                string message = "Você";
 
-            message += " enquanto estava offline. Faremos a sincronização neste instante";
+                if (addCount > 0)
+                    message += $" favoritou {addCount} filme{(addCount > 1 ? "s" : "")}";
 
-            await Shell.Current.DisplayAlert("Sincronização", message, "Ok");
+                if (addCount > 0 && removeCount > 0)
+                    message += " e";
 
-            await _syncService.SyncFavAsync(moviesToSync.Item1, moviesToSync.Item2).Handle(loadingMessage: "Aguarde estamos sincronizando seus favoritos");
+                if (removeCount > 0)
+                    message += $" desfavoritou {removeCount} filme{(removeCount > 1 ? "s" : "")}";
+
+                message += " enquanto estava offline. Faremos a sincronização neste instante";
+
+                await Shell.Current.DisplayAlert("Sincronização", message, "Ok");
+
+                await _syncService.SyncFavAsync(moviesToSync.Item1, moviesToSync.Item2).Handle(loadingMessage: "Aguarde estamos sincronizando seus favoritos");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
 
     void GetAccountDetails()
     {
-        var accountDetailsSerialized = Preferences.Get("AccountDetails", null);
-        if (accountDetailsSerialized != null)
+        try
         {
-            var accountDetails = JsonSerializer.Deserialize<AccountDetailsResponse>(accountDetailsSerialized);
-            AccountDetails = accountDetails;
+
+
+            var accountDetailsSerialized = Preferences.Get("AccountDetails", null);
+            if (accountDetailsSerialized != null)
+            {
+                var accountDetails = JsonSerializer.Deserialize<AccountDetailsResponse>(accountDetailsSerialized);
+                AccountDetails = accountDetails;
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
 
@@ -138,10 +145,17 @@ public partial class MoviesViewModel : BaseViewModel
 
     private void FavoriteMoviesBackgroundTask_StatusChanged(object? sender, BackgroundTaskEventArgs<MoviesResponse> e)
     {
-        if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
+        try
         {
-            var favoriteMoviesSerialized = e.Result.Serialize();
-            Preferences.Set("FavoriteMovies", favoriteMoviesSerialized);
+            if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
+            {
+                var favoriteMoviesSerialized = e.Result.Serialize();
+                Preferences.Set("FavoriteMovies", favoriteMoviesSerialized);
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
     #endregion
@@ -156,16 +170,23 @@ public partial class MoviesViewModel : BaseViewModel
 
     void PopularMoviesBackgroundTask_StatusChanged(object? sender, BackgroundTaskEventArgs<List<Movie>> e)
     {
-        if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
+        try
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
             {
-                PopularMovies.Clear();
-                e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(PopularMovies.Add);
-                AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
-                if (AllMoviesDownloaded)
-                    GetAllMoviesDetails();
-            });
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    PopularMovies.Clear();
+                    e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(PopularMovies.Add);
+                    AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
+                    if (AllMoviesDownloaded)
+                        GetAllMoviesDetails();
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
     #endregion
@@ -180,16 +201,23 @@ public partial class MoviesViewModel : BaseViewModel
 
     void TopRatedMoviesBackgroundTask_StatusChanged(object? sender, BackgroundTaskEventArgs<List<Movie>> e)
     {
-        if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
+        try
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
             {
-                TopRatedMovies.Clear();
-                e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(TopRatedMovies.Add);
-                AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
-                if (AllMoviesDownloaded)
-                    GetAllMoviesDetails();
-            });
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    TopRatedMovies.Clear();
+                    e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(TopRatedMovies.Add);
+                    AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
+                    if (AllMoviesDownloaded)
+                        GetAllMoviesDetails();
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
     #endregion
@@ -203,16 +231,23 @@ public partial class MoviesViewModel : BaseViewModel
 
     void TrendingMoviesBackgroundTask_StatusChanged(object? sender, BackgroundTaskEventArgs<List<Movie>> e)
     {
-        if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
+        try
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (e.TaskStatus is BackgroundTaskStatus.Completed && e.Result is not null)
             {
-                TrendingMovies.Clear();
-                e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(TrendingMovies.Add);
-                AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
-                if (AllMoviesDownloaded)
-                    GetAllMoviesDetails();
-            });
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    TrendingMovies.Clear();
+                    e.Result.Where(movie => !string.IsNullOrWhiteSpace(movie.PosterPath)).ToList().ForEach(TrendingMovies.Add);
+                    AllMoviesDownloaded = PopularMovies.Count > 0 && TopRatedMovies.Count > 0 && TrendingMovies.Count > 0;
+                    if (AllMoviesDownloaded)
+                        GetAllMoviesDetails();
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
     #endregion
@@ -220,80 +255,103 @@ public partial class MoviesViewModel : BaseViewModel
     #region AllMoviesDetail(Background)
     void GetAllMoviesDetails()
     {
-        if (GettingMoviesDetails)
-            return;
-
-        GettingMoviesDetails = true;
-
-        _getAllMovieDetails.RunInBackground(async () =>
+        try
         {
-            var movies = new List<Movie>();
-            movies.AddRange(PopularMovies);
-            movies.AddRange(TopRatedMovies);
-            movies.AddRange(TrendingMovies);
-            await _moviesService.SaveDetailsForMovies(movies);
-        });
-        _getAllMovieDetails.StatusChanged += GetAllMovieDetails_StatusChanged;
+            if (GettingMoviesDetails)
+                return;
+
+            GettingMoviesDetails = true;
+
+            _getAllMovieDetails.RunInBackground(async () =>
+            {
+                var movies = new List<Movie>();
+                movies.AddRange(PopularMovies);
+                movies.AddRange(TopRatedMovies);
+                movies.AddRange(TrendingMovies);
+                await _moviesService.SaveDetailsForMovies(movies);
+            });
+            _getAllMovieDetails.StatusChanged += GetAllMovieDetails_StatusChanged;
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
+        }
     }
 
     private void GetAllMovieDetails_StatusChanged(object? sender, BackgroundTaskEmptyEventArgs e)
     {
-        if (e.TaskStatus is not BackgroundTaskStatus.Running)
+        try
         {
-            MainThread.BeginInvokeOnMainThread(() => GettingMoviesDetails = false);
-            
+            if (e.TaskStatus is not BackgroundTaskStatus.Running)
+                MainThread.BeginInvokeOnMainThread(() => GettingMoviesDetails = false);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
         }
     }
-
-
-
-
     #endregion
 
     #endregion
 
     #region Commands
-
     [RelayCommand]
     public async Task DownloadImagesAsync()
     {
-        var movies = new List<Movie>();
-        movies.AddRange(PopularMovies);
-        movies.AddRange(TopRatedMovies);
-        movies.AddRange(TrendingMovies);
-
-        ShowProgress = true;
-
-        await foreach (var remaining in _moviesService.DownloadAndSaveImagesAsync(movies))
+        try
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+            var movies = new List<Movie>();
+            movies.AddRange(PopularMovies);
+            movies.AddRange(TopRatedMovies);
+            movies.AddRange(TrendingMovies);
+
+            ShowProgress = true;
+
+            await foreach (var remaining in _moviesService.DownloadAndSaveImagesAsync(movies))
             {
-                ProgressCount = $"{remaining} ";
-            });
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    ProgressCount = $"{remaining} ";
+                });
+            }
+
+            await Shell.Current.DisplayAlert("Sincronização", "Imagens baixadas com sucesso", "Ok");
+            ShowProgress = false;
         }
-
-        await Shell.Current.DisplayAlert("Sincronização", "Imagens baixadas com sucesso", "Ok");
-        ShowProgress = false;
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
+        }
     }
-
-    
-    
 
     [RelayCommand]
     public async Task Authenticate()
     {
-        var requestToken = await _authenticationService.GetRequestTokenAsync();
-        AuthUrl = $"{ConstantHelper.AuthUrl}/{requestToken}?redirect_to={ConstantHelper.RedirectUri}";
+        try
+        {
+            var requestToken = await _authenticationService.GetRequestTokenAsync();
+            AuthUrl = $"{ConstantHelper.AuthUrl}/{requestToken}?redirect_to={ConstantHelper.RedirectUri}";
 
-        await Launcher.OpenAsync(AuthUrl);
+            await Launcher.OpenAsync(AuthUrl);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
+        }
     }
-
 
     [RelayCommand]
     public async Task GetMovieDetailAsync(int movieId)
     {
-        Preferences.Set("MovieDetailed", movieId);
-        await Shell.Current.GoToAsync(Routes.MovieDetailPage);
+        try
+        {
+            Preferences.Set("MovieDetailed", movieId);
+            await Shell.Current.GoToAsync(Routes.MovieDetailPage);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesViewModel), ex);
+        }
     }
     #endregion
 }

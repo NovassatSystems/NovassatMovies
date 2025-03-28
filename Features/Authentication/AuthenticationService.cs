@@ -5,28 +5,10 @@ public interface IAuthenticationService
     Task<string> GetRequestTokenAsync();
     Task<CreateSessionResponse> CreateSessionAsync(string requestToken);
     Task<AccountDetailsResponse> GetAccountDetailsAsync(string sessionId);
-    Task<bool> IsSessionActiveAsync();
 }
 public class AuthenticationService : IAuthenticationService
 {
-    public async Task<bool> IsSessionActiveAsync()
-    {
-        //var sessionId = Preferences.Get("SessionId", null);
-        //if (string.IsNullOrEmpty(sessionId))
-        //    return false;
-
-
-        //    var response = await ConstantHelper.BaseUrl
-        //        .AppendPathSegment("/authentication/session")
-        //        .SetQueryParam("session_id", sessionId)
-        //        .WithHeader("accept", "application/json")
-        //        .WithOAuthBearerToken(ConstantHelper.ApiKey)
-        //        .GetJsonAsync<dynamic>();
-
-        //    return response.success;
-        return true;
-       
-    }
+    #region Token
     public async Task<string> GetRequestTokenAsync()
     {
         var response = await ConstantHelper.BaseUrl
@@ -38,7 +20,9 @@ public class AuthenticationService : IAuthenticationService
         var url = $"{ConstantHelper.AuthUrl}/{response.RequestToken}?redirect_to={ConstantHelper.RedirectUri}";
         return url;
     }
+    #endregion
 
+    #region Session
     public async Task<CreateSessionResponse> CreateSessionAsync(string requestToken)
     {
         var response = await ConstantHelper.BaseUrl
@@ -48,7 +32,9 @@ public class AuthenticationService : IAuthenticationService
             .ReceiveJson<CreateSessionResponse>();
         return response;
     }
+    #endregion
 
+    #region Account
     public async Task<AccountDetailsResponse> GetAccountDetailsAsync(string sessionId)
     {
         var response = await ConstantHelper.BaseUrl
@@ -59,4 +45,5 @@ public class AuthenticationService : IAuthenticationService
             .GetJsonAsync<AccountDetailsResponse>();
         return response;
     }
+    #endregion
 }

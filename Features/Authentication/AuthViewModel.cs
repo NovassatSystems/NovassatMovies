@@ -1,8 +1,4 @@
-﻿using NovassatMovies.Extenders.Extensions;
-using NovassatMovies.Infrastructure.Extensions;
-using System.Text.Json;
-
-namespace NovassatMovies.Features.Authentication;
+﻿namespace NovassatMovies.Features.Authentication;
 
 public partial class AuthViewModel : BaseViewModel
 {
@@ -25,6 +21,10 @@ public partial class AuthViewModel : BaseViewModel
     #region Messages
     void RegisterMessages()
     {
+        try
+        {
+
+       
         WeakReferenceMessenger.Default.Register<OAuthCallbackMessage>(this, async (r, message) =>
         {
             var token = message.Value;
@@ -48,11 +48,14 @@ public partial class AuthViewModel : BaseViewModel
 
                     Shell.Current.FindByName<FlyoutItem>("MainFlyout").IsVisible = true;
                     await Shell.Current.GoToAsync("//MainFlyout");
-
-
                 }
             }
         });
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(AuthViewModel), ex);
+        }
     }
     #endregion
 
@@ -61,6 +64,8 @@ public partial class AuthViewModel : BaseViewModel
     [RelayCommand]
     public async Task AuthAsync()
     {
+        try
+        {
 
         if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
         {
@@ -84,6 +89,11 @@ public partial class AuthViewModel : BaseViewModel
         }
         var url = await _authenticationService.GetRequestTokenAsync().Handle(this);
         await Launcher.OpenAsync(url.Data);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(AuthViewModel), ex);
+        }
     }
     #endregion
 }

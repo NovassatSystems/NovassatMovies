@@ -2,13 +2,13 @@
 
 public partial class MoviesFavoriteViewModel : BaseViewModel, IQueryAttributable
 {
-	#region Services
-	readonly IMoviesService _moviesService;
+    #region Services
+    readonly IMoviesService _moviesService;
     readonly IAuthenticationService _authenticationService;
     #endregion
 
     #region BackgroundTasks
-    
+
     #endregion
 
     #region Properties
@@ -19,7 +19,7 @@ public partial class MoviesFavoriteViewModel : BaseViewModel, IQueryAttributable
     #region Ctor
     public MoviesFavoriteViewModel(IMoviesService moviesService, IAuthenticationService authenticationService)
     {
-		_moviesService = moviesService;
+        _moviesService = moviesService;
         _authenticationService = authenticationService;
         GetFavoriteMovies();
     }
@@ -41,8 +41,15 @@ public partial class MoviesFavoriteViewModel : BaseViewModel, IQueryAttributable
     [RelayCommand]
     public async Task GetMovieDetailAsync(int movieId)
     {
-         Preferences.Set("MovieDetailed", movieId);
-        await Shell.Current.GoToAsync(Routes.MovieDetailPage);
+        try
+        { 
+            Preferences.Set("MovieDetailed", movieId);
+            await Shell.Current.GoToAsync(Routes.MovieDetailPage);
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MoviesFavoriteViewModel), ex);
+        }
     }
     #endregion
 }

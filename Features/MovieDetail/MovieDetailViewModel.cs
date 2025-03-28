@@ -1,7 +1,4 @@
-﻿using NovassatMovies.Infrastructure.Extensions;
-using NovassatMovies.Infrastructure.Services;
-
-namespace NovassatMovies.Features.MovieDetail;
+﻿namespace NovassatMovies.Features.MovieDetail;
 
 public partial class MovieDetailViewModel : BaseViewModel, IQueryAttributable
 {
@@ -41,10 +38,17 @@ public partial class MovieDetailViewModel : BaseViewModel, IQueryAttributable
     #region Methods
     public async void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("MovieDetail", out var movieId) && movieId is string movieIdStr)
+        try
         {
-            if (int.TryParse(movieIdStr, out int id))
-                GetMovieDetails(id);
+            if (query.TryGetValue("MovieDetail", out var movieId) && movieId is string movieIdStr)
+            {
+                if (int.TryParse(movieIdStr, out int id))
+                    GetMovieDetails(id);
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(AuthViewModel), ex);
         }
     }
 
@@ -52,27 +56,40 @@ public partial class MovieDetailViewModel : BaseViewModel, IQueryAttributable
     {
         var movieId = Preferences.Get("MovieDetailed", 0);
         GetMovieDetails(movieId);
-        
+
     }
 
     public async void GetMovieDetails(int movieId)
     {
-      
-        var detail = await _moviesService.GetMovieDetailAsync(movieId).Handle(this, true);
+        try
+        {
+            var detail = await _moviesService.GetMovieDetailAsync(movieId).Handle(this, true);
 
-        var movie = await _databaseService.IsFavorite(movieId);
+            var movie = await _databaseService.IsFavorite(movieId);
 
-        Movie = detail.Data;
-        Movie.IsFavorite = movie is not null ? movie.IsFavorite : false;
+            Movie = detail.Data;
+            Movie.IsFavorite = movie is not null ? movie.IsFavorite : false;
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MovieDetailViewModel), ex);
+        }
     }
 
     void GetAccountDetails()
     {
-        var accountDetailsSerialized = Preferences.Get("AccountDetails", null);
-        if (accountDetailsSerialized != null)
+        try
         {
-            var accountDetails = accountDetailsSerialized.Deserialize<AccountDetailsResponse>();
-            AccountDetails = accountDetails;
+            var accountDetailsSerialized = Preferences.Get("AccountDetails", null);
+            if (accountDetailsSerialized != null)
+            {
+                var accountDetails = accountDetailsSerialized.Deserialize<AccountDetailsResponse>();
+                AccountDetails = accountDetails;
+            }
+        }
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MovieDetailViewModel), ex);
         }
     }
     #endregion
@@ -81,16 +98,15 @@ public partial class MovieDetailViewModel : BaseViewModel, IQueryAttributable
     [RelayCommand]
     public async Task AddOrRemoveFavoriteMovie(string add)
     {
-        var active = await _authenticationService.IsSessionActiveAsync();
-
-        if (!active)
+        try
         {
-            await Toast.Make("Sua sessão expirou e será redirecionado para a tela de Login ").Show();
-            return;
+            var result = await _moviesService.AddOrRemoveFavoriteMovieAsync(Movie.Id, add is "1");
+            Movie.IsFavorite = result.WasFavorited;
         }
-        var result = await _moviesService.AddOrRemoveFavoriteMovieAsync(Movie.Id, add is "1");
-
-        Movie.IsFavorite = result.WasFavorited;
+        catch (Exception ex)
+        {
+            LogHelper.Log(nameof(MovieDetailViewModel), ex);
+        }
     }
 
     [RelayCommand]
